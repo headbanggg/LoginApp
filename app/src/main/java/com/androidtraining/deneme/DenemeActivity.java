@@ -8,6 +8,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.Volley;
+
 public class DenemeActivity extends AppCompatActivity {
 
     @Override
@@ -21,6 +24,7 @@ public class DenemeActivity extends AppCompatActivity {
         final EditText passwordEditText = findViewById(R.id.etPassword);
         Button loginButton = findViewById(R.id.btnLogin);
         Button registerButton = findViewById(R.id.btnRegister);
+        final RequestQueue requestQueue= Volley.newRequestQueue(DenemeActivity.this);
         /**
          * login butonuna tıklandığını algılayabilmek için setOnClickListener metodu ile yeni bir OnClickListener yaratıyoruz.
          */
@@ -35,16 +39,14 @@ public class DenemeActivity extends AppCompatActivity {
 
                 String userName = userNameEditText.getText().toString();
                 String userPass = passwordEditText.getText().toString();
-                if (LoginHelper.isUserExist(userName, userPass)) {
-                    Intent myIntent = new Intent(DenemeActivity.this, SecondActivity.class);
-                    myIntent.putExtra("myusername", userName);
-                    String favoriteColor= LoginHelper.favoriteColor;
-                    myIntent.putExtra("myfavoritecolor",favoriteColor);
-                    startActivity(myIntent);
-                } else {
-                    Toast.makeText(DenemeActivity.this, "wrong username or password", Toast.LENGTH_SHORT).show();
-                }
+               boolean isUserExist= LoginHelper.loginWithUsernameAndPassword(DenemeActivity.this,requestQueue,userName,userPass);
 
+                if (isUserExist){
+                    Toast.makeText(DenemeActivity.this, "user exist", Toast.LENGTH_SHORT).show();
+
+                }else {
+                    Toast.makeText(DenemeActivity.this, "wrong username or password" , Toast.LENGTH_LONG).show();
+                }
 
             }
         });
