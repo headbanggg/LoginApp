@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Deneme</string>
+    <string name="login_username_hint">Username</string>
+</resources>
