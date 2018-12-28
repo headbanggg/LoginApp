@@ -14,8 +14,8 @@ public class SecondActivity extends AppCompatActivity {
         setContentView(R.layout.activity_second);
 
         Intent intent = getIntent();
-        String username = intent.getStringExtra("myusername");
-        String favoritecolor= intent.getStringExtra("myfavoritecolor");
+        String username = intent.getStringExtra("username");
+        String favoritecolor= intent.getStringExtra("favcolor");
         TextView tvWelcome = findViewById(R.id.tvWelcome);
 
         tvWelcome.setText("Hello "+ username);

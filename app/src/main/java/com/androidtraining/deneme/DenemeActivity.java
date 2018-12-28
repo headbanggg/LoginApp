@@ -8,6 +8,16 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 public class DenemeActivity extends AppCompatActivity {
 
     @Override
@@ -35,16 +45,49 @@ public class DenemeActivity extends AppCompatActivity {
 
                 String userName = userNameEditText.getText().toString();
                 String userPass = passwordEditText.getText().toString();
-                if (LoginHelper.isUserExist(userName, userPass)) {
-                    Intent myIntent = new Intent(DenemeActivity.this, SecondActivity.class);
-                    myIntent.putExtra("myusername", userName);
-                    String favoriteColor= LoginHelper.favoriteColor;
-                    myIntent.putExtra("myfavoritecolor",favoriteColor);
-                    startActivity(myIntent);
-                } else {
-                    Toast.makeText(DenemeActivity.this, "wrong username or password", Toast.LENGTH_SHORT).show();
+
+                String url = "https://egitimlogin.herokuapp.com/login";
+
+                RequestQueue requestQueue =Volley.newRequestQueue(DenemeActivity.this);
+
+                JSONObject jsonObject = new JSONObject();
+                try {
+                    jsonObject.put("username",userName);
+                    jsonObject.put("password",userPass);
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
 
+                JsonObjectRequest jsonObjectRequest=new JsonObjectRequest(Request.Method.POST, url, jsonObject, new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        try {
+                            String userName= response.getString("username");
+                            String favColor = response.getString("favColor");
+                            Intent intent = new Intent(DenemeActivity.this,SecondActivity.class);
+                            intent.putExtra("username",userName);
+                            intent.putExtra("favcolor",favColor);
+                            startActivity(intent);
+                        } catch (JSONException e) {
+                            try {
+                                String errorstring = response.getString("message");
+                                Toast.makeText(DenemeActivity.this, errorstring, Toast.LENGTH_SHORT).show();
+                            } catch (JSONException e1) {
+                                e1.printStackTrace();
+                            }
+                            e.printStackTrace();
+                        }
+
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Toast.makeText(DenemeActivity.this, "Hatalı kullanıcı adı veya şifre", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+                requestQueue.add(jsonObjectRequest);
 
             }
         });

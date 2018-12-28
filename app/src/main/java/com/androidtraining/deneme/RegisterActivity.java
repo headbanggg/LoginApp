@@ -9,7 +9,19 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+
 public class RegisterActivity extends AppCompatActivity {
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -20,6 +32,9 @@ public class RegisterActivity extends AppCompatActivity {
         Button btnSubmit = findViewById(R.id.btnSubmit);
         final RadioGroup rg = findViewById(R.id.rgColors);
 
+        final String baseurl = "https://egitimlogin.herokuapp.com/user";
+
+
         btnSubmit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -28,13 +43,35 @@ public class RegisterActivity extends AppCompatActivity {
                 int id = rg.getCheckedRadioButtonId();
                 String newFavoriteColor = ((RadioButton) findViewById(id)).getText().toString();
 
-                User newUser = new User(newUserName, newUserPass, newFavoriteColor);
-                if (LoginHelper.addNewUser(newUser)) {
-                    Toast.makeText(getApplicationContext(), "user added " , Toast.LENGTH_LONG).show();
 
-                } else {
-                    Toast.makeText(getApplicationContext(), "wrong username " + newFavoriteColor, Toast.LENGTH_LONG).show();
+                RequestQueue requestQueue = Volley.newRequestQueue(RegisterActivity.this);
+
+                JSONObject jsonObject =new JSONObject();
+                try {
+                    jsonObject.put("username",newUserName);
+                    jsonObject.put( "password",newUserPass);
+                    jsonObject.put("favColor", newFavoriteColor);
+
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
+
+
+                JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, baseurl, jsonObject, new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        Toast.makeText(RegisterActivity.this, "Kullanıcı eklendi.", Toast.LENGTH_SHORT).show();
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+
+                        Toast.makeText(getApplicationContext(), "Kullanıcı oluşturulamadı.", Toast.LENGTH_LONG).show();
+                    }
+                });
+
+                requestQueue.add(jsonObjectRequest);
 
             }
         });
